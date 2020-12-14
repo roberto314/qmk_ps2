@@ -22,8 +22,12 @@
 /* defined by default; to change, uncomment and set to the combination you want */
 // #define IS_COMMAND() (get_mods() == MOD_MASK_SHIFT)
 
-#define GPTIM GPTD4
+// XT Keyboard Output
+#define GPTIM GPTD4 // Timer for polled timeout
 #define F_TIM 24 //in MHz! One Tic @ 72MHz is 13.8ns
 #define TICS_P100 ((F_TIM/10)+1) //Tics per 100us - rounding up
 #define TIC       ((1000/F_TIM)+1) //us for one tic
 #define MS        (F_TIM/24)
+#define _delay_micro(x) (gptPolledDelay(&GPTIM, (x*1000/42)))
+#define INVERT_DATA 1
+#define INVERT_CLOCK 1

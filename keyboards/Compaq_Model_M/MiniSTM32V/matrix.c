@@ -41,6 +41,10 @@ static const GPTConfig gptXcfg = { //Timer for polled delay needs 1ns resolution
     0,
     0
 };
+void DAT_ACTIVE(void);
+void DAT_INACTIVE(void);
+void CLK_ACTIVE(void);
+void CLK_INACTIVE(void);
 
 static uint8_t debouncing = DEBOUNCE;
 
@@ -88,8 +92,12 @@ void matrix_init_user(void) {
   chThdSleepMilliseconds(200);  //ROB
   chprintf(chout, "Serial Driver Functional s\r\n");  //ROB
   // Bitbang Output for XT Keyboard
-  palSetPadMode(GPIOB, 3, PAL_MODE_OUTPUT_PUSHPULL);
-  palSetPadMode(GPIOB, 4, PAL_MODE_OUTPUT_PUSHPULL);
+  //palSetPadMode(GPIOB, 3, PAL_MODE_OUTPUT_PUSHPULL);
+  //palSetPadMode(GPIOB, 4, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetLineMode(XT_CLK, PAL_MODE_OUTPUT_PUSHPULL);
+  palSetLineMode(XT_DAT, PAL_MODE_OUTPUT_PUSHPULL);
+  CLK_INACTIVE();
+  DAT_INACTIVE();
   gptStart(&GPTIM, &gptXcfg); //polled delay
 }
 
@@ -280,18 +288,45 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   return true;
 }
 
-#define _delay_micro(x) (gptPolledDelay(&GPTIM, (x*1000/42)))
+void DAT_ACTIVE(void){
+#ifdef INVERT_DATA
+  palSetLine(XT_DAT);
+#else
+  palClearLine(XT_DAT);
+#endif  
+}
+void DAT_INACTIVE(void){
+#ifdef INVERT_DATA
+  palClearLine(XT_DAT);
+#else
+  palSetLine(XT_DAT);
+#endif  
+}
+void CLK_ACTIVE(void){
+#ifdef INVERT_CLOCK
+  palSetLine(XT_CLK);
+#else
+  palClearLine(XT_CLK);
+#endif  
+}
+void CLK_INACTIVE(void){
+#ifdef INVERT_CLOCK
+  palClearLine(XT_CLK);
+#else
+  palSetLine(XT_CLK);
+#endif  
+}
 
 void _send_start(void){
   // CLK Line is HIGH and DATA Line is LOW
-   palClearLine(XT_CLK); //1
-   palSetLine(XT_DAT);
+   CLK_ACTIVE(); //1
+   DAT_INACTIVE();
    _delay_micro(120);
-   palSetLine(XT_CLK);
+   CLK_INACTIVE();
    _delay_micro(66);
-   palClearLine(XT_CLK); //2
+   CLK_ACTIVE(); //2
    _delay_micro(30); 
-   palSetLine(XT_CLK);
+   CLK_INACTIVE();
   // CLK Line is High and DATA Line is still HIGH
 }
 
@@ -310,19 +345,19 @@ void _write_bitbang(uint8_t value){
    
    for (i=0; i < 8; i++){
       _delay_micro(30);
-      palSetLine(XT_CLK);
+      CLK_INACTIVE();
       if (bits[p] == 1){
-         palSetLine(XT_DAT);
+         DAT_INACTIVE();
       }else{
-         palClearLine(XT_DAT);
+         DAT_ACTIVE();
       }
       _delay_micro(66); 
-      palClearLine(XT_CLK);
-      palClearLine(XT_DAT);
+      CLK_ACTIVE();
+      DAT_ACTIVE();
       p++ ;
    }
    _delay_micro(30);
-   palSetLine(XT_CLK);
-   palClearLine(XT_DAT);
+   CLK_INACTIVE();
+   DAT_ACTIVE();
    //delay(1) ;
 }
