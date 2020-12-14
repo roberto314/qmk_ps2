@@ -29,9 +29,9 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x2f, // 025	V   
 0x11, // 026	W   
 0x2d, // 027	X   
-0x15, // 028	Y   
-0x2c, // 029	Z   
-0x02, // 030	1   
+0x15, // 028	Y   (Z)
+0x2c, // 029	Z   (Y)
+0x02, // 030	1
 0x03, // 031	2   
 0x04, // 032	3   
 0x05, // 033	4   
@@ -46,15 +46,15 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x0e, // 042	Backspace   
 0x0f, // 043	Tab   
 0x39, // 044	Space   
-0x0c, // 045	- _   
-0x0d, // 046	+ =   
-0x1a, // 047	[   
-0x1b, // 048	]   
+0x0c, // 045	- _   (ß ?)
+0x0d, // 046	+ =   (´ `)
+0x1a, // 047	[     (Ü)
+0x1b, // 048	]     (+ *)
 0x00, // 049	-----
 0x00, // 050	-----  
-0x27, // 051	; :   
-0x29, // 052	Backquote   
-0x28, // 053	' “   
+0x27, // 051	; :   (Ö)
+0x29, // 052	Backquote  (^ °)
+0x28, // 053	' “   (Ä)
 0x33, // 054	Comma   
 0x34, // 055	Dot   
 0x35, // 056	/ ?   
@@ -69,11 +69,11 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x42, // 065	F8   
 0x43, // 066	F9   
 0x44, // 067	F10
-0x00, // 068	-----  
-0x00, // 069	-----  
-0x00, // 070	-----  
+0x57, // 068	F11  
+0x58, // 069	F12  
+0x60, // 070	PrtSc 
 0x46, // 071	Scroll Lock   
-0x00, // 072	-----
+0x61, // 072	Pause
 0x72, // 073	Insert
 0x78, // 074	Rule / Home   
 0x00, // 075	----- 
@@ -86,22 +86,22 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x00, // 082	-----
 0x45, // 083	Num Lock
 0x00, // 084	-----  
-0x37, // 085	PrtSc   
+0xe0, // 085	Print Screen
 0x4a, // 086	Keypad minus   
-0x4e, // 087	Keypad enter   
-0x00, // 088	Keypad 1  
-0x4f, // 089	Keypad 2   
-0x50, // 090	Keypad 3   
-0x51, // 091	Cursor left   
-0x4b, // 092	Keypad 4   
-0x4c, // 093	Keypad 5   
-0x4d, // 094	Keypad 6   
-0x47, // 095	Keypad 7   
-0x48, // 096	Keypad 8   
-0x49, // 097	Keypad 9   
-0x52, // 098	Keypad 0 / Ins   
-0x53, // 099	Keypad . / Del   
-0x2b, // 100	SLASH 
+0x4b, // 087	Keypad plus   
+0x00, // 088	Keypad Enter 
+0x4f, // 089	Keypad 1
+0x50, // 090	Keypad 2
+0x51, // 091	Cursor 3
+0x4b, // 092	Keypad 4
+0x4c, // 093	Keypad 5
+0x4d, // 094	Keypad 6
+0x47, // 095	Keypad 7
+0x48, // 096	Keypad 8
+0x49, // 097	Keypad 9
+0x52, // 098	Keypad 0
+0x53, // 099	Keypad , DEL
+0x56, // 100	\ |   (< >)
 0x6c, // 101	
 0x00, // 102	  
 0x00, // 103	  
@@ -231,7 +231,7 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x00, // 227	-----
 0x6e, // 228	ENTER
 0x36, // 229	Right SHIFT
-0x6d, // 230	Right ALT
+0xE0, // 230	Right ALT
 0x00, // 231	-----
 0x00, // 232	-----
 0x00, // 233	-----

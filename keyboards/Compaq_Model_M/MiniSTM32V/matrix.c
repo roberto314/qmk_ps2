@@ -97,7 +97,7 @@ void matrix_init_user(void) {
   palSetLineMode(XT_CLK, PAL_MODE_OUTPUT_PUSHPULL);
   palSetLineMode(XT_DAT, PAL_MODE_OUTPUT_PUSHPULL);
   CLK_INACTIVE();
-  DAT_INACTIVE();
+  DAT_ACTIVE();
   gptStart(&GPTIM, &gptXcfg); //polled delay
 }
 
@@ -277,14 +277,15 @@ void post_process_record_kb(uint16_t keycode, keyrecord_t *record){
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // If console is enabled, it will print the matrix position and status of each key pressed
-#ifdef CONSOLE_ENABLE
     //uprintf("KL: kc: %u, col: %u, row: %u, pressed: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed);
   if (record->event.pressed){
+#ifdef CONSOLE_ENABLE
     dprintf("kc: %0x\n",keycode);
-    chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);
+#endif 
+    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);
+    chprintf(chout, "kc: %0x XT: %0d\r\n", keycode, IBM_XT[keycode]);
     _write_bitbang(IBM_XT[keycode]);
   }
-#endif 
   return true;
 }
 
@@ -321,12 +322,15 @@ void _send_start(void){
   // CLK Line is HIGH and DATA Line is LOW
    CLK_ACTIVE(); //1
    DAT_INACTIVE();
-   _delay_micro(120);
+   _delay_micro(50);
+   //_delay_micro(120);
    CLK_INACTIVE();
-   _delay_micro(66);
+   _delay_micro(40);
+   //_delay_micro(66);
    CLK_ACTIVE(); //2
-   _delay_micro(30); 
-   CLK_INACTIVE();
+   //_delay_micro(15); 
+   //_delay_micro(30); 
+   //CLK_INACTIVE();
   // CLK Line is High and DATA Line is still HIGH
 }
 
@@ -344,16 +348,21 @@ void _write_bitbang(uint8_t value){
    _send_start();
    
    for (i=0; i < 8; i++){
-      _delay_micro(30);
-      CLK_INACTIVE();
+      _delay_micro(15);
+      //_delay_micro(30);
+      //CLK_INACTIVE();
+      //_delay_micro(15);
       if (bits[p] == 1){
          DAT_INACTIVE();
       }else{
          DAT_ACTIVE();
       }
-      _delay_micro(66); 
+      //_delay_micro(66); 
+      _delay_micro(25); 
+      CLK_INACTIVE();
+      _delay_micro(40);
       CLK_ACTIVE();
-      DAT_ACTIVE();
+      //DAT_ACTIVE();
       p++ ;
    }
    _delay_micro(30);
