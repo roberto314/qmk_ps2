@@ -59,6 +59,7 @@ static void init_cols(void);
 static void unselect_rows(void);
 static void select_row(uint8_t row);
 void _write_bitbang(uint8_t value);
+void _send_XT_extended(uint8_t keycode);
 inline uint8_t matrix_rows(void){
   return MATRIX_ROWS;
 }
@@ -278,13 +279,59 @@ void post_process_record_kb(uint16_t keycode, keyrecord_t *record){
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // If console is enabled, it will print the matrix position and status of each key pressed
     //uprintf("KL: kc: %u, col: %u, row: %u, pressed: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed);
-  if (record->event.pressed){
 #ifdef CONSOLE_ENABLE
     dprintf("kc: %0x\n",keycode);
 #endif 
-    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);
-    chprintf(chout, "kc: %0x XT: %0d\r\n", keycode, IBM_XT[keycode]);
-    _write_bitbang(IBM_XT[keycode]);
+  if (record->event.pressed){
+    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);    
+    switch (keycode){
+      case KC_PENT:
+      case KC_RCTL:
+      case KC_PSLS:
+      case KC_RALT:
+      case KC_HOME:
+      case KC_UP:
+      case KC_PGUP:
+      case KC_LEFT:
+      case KC_RGHT:
+      case KC_END:
+      case KC_DOWN:
+      case KC_PGDN:
+      case KC_INS:
+      case KC_DEL:
+      _send_XT_extended(IBM_XT[keycode]);
+      chprintf(chout, "kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]);
+      break;
+      default:
+      _write_bitbang(IBM_XT[keycode]);
+      chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
+      break;
+    }
+  } else {
+    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);    
+    switch (keycode){
+      case KC_PENT:
+      case KC_RCTL:
+      case KC_PSLS:
+      case KC_RALT:
+      case KC_HOME:
+      case KC_UP:
+      case KC_PGUP:
+      case KC_LEFT:
+      case KC_RGHT:
+      case KC_END:
+      case KC_DOWN:
+      case KC_PGDN:
+      case KC_INS:
+      case KC_DEL:
+      _send_XT_extended(IBM_XT[keycode] | 0x80);
+      chprintf(chout, "release kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
+      break;
+      default:
+      _write_bitbang(IBM_XT[keycode] | 0x80);
+      chprintf(chout, "release kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
+      break;
+    }
   }
   return true;
 }
@@ -321,6 +368,7 @@ void CLK_INACTIVE(void){
 void _send_start(void){
   // CLK Line is HIGH and DATA Line is LOW
    CLK_ACTIVE(); //1
+   _delay_micro(5);
    DAT_INACTIVE();
    _delay_micro(50);
    //_delay_micro(120);
@@ -367,10 +415,13 @@ void _write_bitbang(uint8_t value){
    }
    _delay_micro(30);
    CLK_INACTIVE();
+   _delay_micro(5);
    DAT_ACTIVE();
    //delay(1) ;
 }
-void _send_XT_extended(uint8_t value){
+void _send_XT_extended(uint8_t keycode){
   _write_bitbang(0xe0);
-  _write_bitbang(IBM_XT[keycode]);
+  //_delay_micro(3500); does not work!
+  chThdSleepMilliseconds(4);
+  _write_bitbang(keycode);
 }

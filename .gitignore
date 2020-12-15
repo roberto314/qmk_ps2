@@ -60,9 +60,9 @@ doxygen/
 .tags
 
 # ignore image files
-*.png
-*.gif
-*.jpg
+#*.png
+#*.gif
+#*.jpg
 
 # things travis sees
 secrets.tar
