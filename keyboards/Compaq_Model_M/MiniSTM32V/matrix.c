@@ -370,3 +370,7 @@ void _write_bitbang(uint8_t value){
    DAT_ACTIVE();
    //delay(1) ;
 }
+void _send_XT_extended(uint8_t value){
+  _write_bitbang(0xe0);
+  _write_bitbang(IBM_XT[keycode]);
+}
