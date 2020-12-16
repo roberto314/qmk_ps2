@@ -50,11 +50,11 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x0d, // 046	+ =   (´ `)
 0x1a, // 047	[     (Ü)
 0x1b, // 048	]     (+ *)
-0x00, // 049	-----
+0x2b, // 049	# '
 0x00, // 050	-----  
 0x27, // 051	; :   (Ö)
-0x29, // 052	Backquote  (^ °)
-0x28, // 053	' “   (Ä)
+0x28, // 052	' “   (Ä)
+0x29, // 053	Backquote  (^ °)
 0x33, // 054	Comma   
 0x34, // 055	Dot   
 0x35, // 056	/ ?   
@@ -71,35 +71,35 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x44, // 067	F10
 0x57, // 068	F11  
 0x58, // 069	F12  
-0x60, // 070	PrtSc 
+0x37, // 070	PrtSc 
 0x46, // 071	Scroll Lock   
 0x61, // 072	Pause
-0x72, // 073	Insert
-0x78, // 074	Rule / Home   
-0x00, // 075	----- 
-0x73, // 076	Delete
-0x00, // 077	----- 
-0x00, // 078	-----
-0x79, // 079	Cursor right
-0x00, // 080	-----
-0x00, // 081	-----
-0x00, // 082	-----
+0x52, // 073	Insert
+0x47, // 074	Rule / Home   
+0x49, // 075	PG UP
+0x53, // 076	Delete
+0x4f, // 077	END
+0x51, // 078	PG DOWN
+0x4d, // 079	Cursor RIGHT
+0x4b, // 080	Cursor LEFT
+0x50, // 081	Cursor DOWN
+0x48, // 082	Cursor UP
 0x45, // 083	Num Lock
 0x00, // 084	-----  
 0xe0, // 085	Print Screen
 0x4a, // 086	Keypad minus   
 0x4b, // 087	Keypad plus   
 0x00, // 088	Keypad Enter 
-0x4f, // 089	Keypad 1
-0x50, // 090	Keypad 2
-0x51, // 091	Cursor 3
-0x4b, // 092	Keypad 4
-0x4c, // 093	Keypad 5
-0x4d, // 094	Keypad 6
-0x47, // 095	Keypad 7
-0x48, // 096	Keypad 8
-0x49, // 097	Keypad 9
-0x52, // 098	Keypad 0
+0x4f, // 089	Keypad 1 / END
+0x50, // 090	Keypad 2 / Cursor DOWN
+0x51, // 091	Cursor 3 / PG DOWN
+0x4b, // 092	Keypad 4 / Cursor LEFT
+0x4c, // 093	Keypad 5 / -
+0x4d, // 094	Keypad 6 / Cursor RIGHT
+0x47, // 095	Keypad 7 / HOME
+0x48, // 096	Keypad 8 / Cursor UP
+0x49, // 097	Keypad 9 / PG UP
+0x52, // 098	Keypad 0 / INS
 0x53, // 099	Keypad , DEL
 0x56, // 100	\ |   (< >)
 0x6c, // 101	
@@ -231,7 +231,7 @@ const uint8_t PROGMEM IBM_XT[] = {
 0x00, // 227	-----
 0x6e, // 228	ENTER
 0x36, // 229	Right SHIFT
-0xE0, // 230	Right ALT
+0x38, // 230	Right ALT
 0x00, // 231	-----
 0x00, // 232	-----
 0x00, // 233	-----
