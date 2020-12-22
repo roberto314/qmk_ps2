@@ -283,7 +283,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("kc: %0x\n",keycode);
 #endif 
   if (record->event.pressed){
-    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);    
     switch (keycode){
       case KC_PENT:
       case KC_RCTL:
@@ -307,8 +306,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
       break;
     }
-  } else {
-    //chprintf(chout, "kc: %0x XT: %0x\r\n", keycode, IBM_XT[keycode]);    
+  } else { 
     switch (keycode){
       case KC_PENT:
       case KC_RCTL:
@@ -324,7 +322,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case KC_PGDN:
       case KC_INS:
       case KC_DEL:
-      _send_XT_extended(IBM_XT[keycode] | 0x80);
+      _send_XT_extended(IBM_XT[keycode] | 0x80); //Key release is Bit 7 SET
       chprintf(chout, "release kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
       break;
       default:
@@ -368,7 +366,7 @@ void CLK_INACTIVE(void){
 void _send_start(void){
   // CLK Line is HIGH and DATA Line is LOW
    CLK_ACTIVE(); //1
-   _delay_micro(5);
+   _delay_micro(5); //Needed for my logic and protocol analyzer 
    DAT_INACTIVE();
    _delay_micro(50);
    //_delay_micro(120);
