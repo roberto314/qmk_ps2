@@ -60,6 +60,7 @@ static void unselect_rows(void);
 static void select_row(uint8_t row);
 void _write_bitbang(uint8_t value);
 void _send_XT_extended(uint8_t keycode);
+void _send_fake_shift(void);
 inline uint8_t matrix_rows(void){
   return MATRIX_ROWS;
 }
@@ -277,6 +278,7 @@ void post_process_record_kb(uint16_t keycode, keyrecord_t *record){
 }
 
 #define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
+#define USB_LED_USBREALOFF 6 //additional to defines 0..4 in led.h
 
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -286,6 +288,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("kc: %0x\n",keycode);
 #endif 
   if (record->event.pressed){
+    if (led_status & (1<<USB_LED_USBOFF)){  //switch USB off AFTER keys have been released
+      led_status |= (1<<USB_LED_USBREALOFF);
+    }    
     switch (keycode){
       case KC_PENT:
       case KC_RCTL:
@@ -308,10 +313,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       //chprintf(chout, "Caps Lock sent\r\n");
       if (led_status & (1<<USB_LED_CAPS_LOCK)){
         led_status &= ~(1<<USB_LED_CAPS_LOCK);
+        _write_bitbang(IBM_XT[keycode]);
+        _send_fake_shift();  //hack because the shift "HANGS" after pressing twice it is still on!
       } else {
         led_status |= (1<<USB_LED_CAPS_LOCK);
+        _write_bitbang(IBM_XT[keycode]);
       }
-      _write_bitbang(IBM_XT[keycode]);
       break;
       case KC_NLCK:
       //chprintf(chout, "Num Lock sent\r\n");
@@ -333,10 +340,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
       default:
       _write_bitbang(IBM_XT[keycode]);
-      chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
       break;
     }
-  } else { 
+    chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
+  } else {
     switch (keycode){
       case KC_PENT:
       case KC_RCTL:
@@ -353,13 +360,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case KC_INS:
       case KC_DEL:
       _send_XT_extended(IBM_XT[keycode] | 0x80); //Key release is Bit 7 SET
-      chprintf(chout, "release kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
       break;
       default:
       _write_bitbang(IBM_XT[keycode] | 0x80);
-      chprintf(chout, "release kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
       break;
     }
+    chprintf(chout, "release kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
   }
   led_set_user_2(led_status);
   //chprintf(chout, "led_status: %0d\r\n", led_status);
@@ -455,7 +461,13 @@ void _send_XT_extended(uint8_t keycode){
   chThdSleepMilliseconds(4);
   _write_bitbang(keycode);
 }
-
+void _send_fake_shift(void){
+  chThdSleepMilliseconds(4);
+  //_write_bitbang(0xe0);
+  _write_bitbang(IBM_XT[KC_LSFT]);
+  chThdSleepMilliseconds(4);
+  _write_bitbang(IBM_XT[KC_LSFT] | 0x80);
+}
 //bool process_action_kb(keyrecord_t *record) {
 //  chprintf(chout, "In process_action_kb\r\n");
 //
@@ -480,6 +492,7 @@ bool command_extra(uint8_t code){
             print("USB on/off\n");
             if (led_status & (1<<USB_LED_USBOFF)){
               led_status &= ~(1<<USB_LED_USBOFF);
+              led_status &= ~(1<<USB_LED_USBREALOFF);
             } else {
               led_status |= (1<<USB_LED_USBOFF);
             }
@@ -492,7 +505,7 @@ bool command_extra(uint8_t code){
 }
 
 bool host_keyboard_send_user(void){ 
-  if (led_status & (1<<USB_LED_USBOFF)){
+  if (led_status & (1<<USB_LED_USBREALOFF)){
     return false;
   } else {
     return true;

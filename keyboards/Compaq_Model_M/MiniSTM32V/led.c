@@ -21,9 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "chprintf.h" //ROB
 #define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
 
-static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
+//static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
 
 void led_set_user_2(uint8_t usb_led){
+//void led_set(uint8_t usb_led){
   //chprintf(chout, "In led_set %0d\r\n", usb_led);
   if (usb_led & (1<<USB_LED_CAPS_LOCK)) {
     palClearLine(LED_NUM);
