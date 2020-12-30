@@ -70,7 +70,7 @@ CSTANDARD = -std=gnu99
 #CXXDEFS +=
 
 
-
+ALLOW_WARNINGS = yes
 
 #---------------- Compiler Options C ----------------
 #  -g*:          generate debugging information
@@ -92,6 +92,7 @@ endif
 endif
 CFLAGS += -Wall
 CFLAGS += -Wstrict-prototypes
+
 ifneq ($(strip $(ALLOW_WARNINGS)), yes)
     CFLAGS += -Werror
 endif

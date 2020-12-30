@@ -51,6 +51,7 @@
 #define LED_SCRL          PAL_LINE(GPIOD, 15)
 #define XT_CLK            PAL_LINE(GPIOB, 14)
 #define XT_DAT            PAL_LINE(GPIOB, 15)
+#define LED_USB           PAL_LINE(GPIOB, 0)
 /* Backlighting */
 
 /*#define GPIOC_BACKLIGHT_PIN               15*/

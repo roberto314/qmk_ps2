@@ -18,31 +18,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "hal.h"
 #include "led.h"
 #include "print.h"
+#include "chprintf.h" //ROB
+#define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
 
+static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
 
-void led_set(uint8_t usb_led){
+void led_set_user_2(uint8_t usb_led){
+  //chprintf(chout, "In led_set %0d\r\n", usb_led);
   if (usb_led & (1<<USB_LED_CAPS_LOCK)) {
     palClearLine(LED_NUM);
-    print("Caps Lock ON\n");
+    //print("Caps Lock ON\n");
   } else {
     palSetLine(LED_NUM);
-    print("Caps Lock OFF\n");
+    //print("Caps Lock OFF\n");
   }
   if (usb_led & (1<<USB_LED_NUM_LOCK)) {
     palClearLine(LED_CAPS);
-    print("NUM Lock ON\n");
+    //print("NUM Lock ON\n");
   } else {
     palSetLine(LED_CAPS);
-    print("NUM Lock OFF\n");
+    //print("NUM Lock OFF\n");
   }
   if (usb_led & (1<<USB_LED_SCROLL_LOCK)) {
     palClearLine(LED_SCRL);
-    print("\nScroll Lock ON\n");
+    //print("\nScroll Lock ON\n");
   } else {
     palSetLine(LED_SCRL);
-    print("\nScroll Lock OFF\n");
+    //print("\nScroll Lock OFF\n");
+  }
+  if (usb_led & (1<<USB_LED_USBOFF)) {
+    palClearLine(LED_USB);
+  } else {
+    palSetLine(LED_USB);
   }
 }
+//void led_set(uint8_t usb_led){
+//  if (usb_led < 255){
+//    led_set_user(usb_led);
+//  }
+//}
 
 // inline void gh60_caps_led_off(void)     { DDRB &= ~(1<<2); PORTB &= ~(1<<2); }
 

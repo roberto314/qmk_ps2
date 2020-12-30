@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 extern keymap_config_t keymap_config;
 #endif
 
+__attribute__((weak)) bool host_keyboard_send_user(void) { return true; }
+
 static host_driver_t *driver;
 static uint16_t       last_system_report   = 0;
 static uint16_t       last_consumer_report = 0;
@@ -48,6 +50,7 @@ led_t host_keyboard_led_state(void) {
 /* send report */
 void host_keyboard_send(report_keyboard_t *report) {
     if (!driver) return;
+    if (!(host_keyboard_send_user())) return;
 #if defined(NKRO_ENABLE) && defined(NKRO_SHARED_EP)
     if (keyboard_protocol && keymap_config.nkro) {
         /* The callers of this function assume that report->mods is where mods go in.

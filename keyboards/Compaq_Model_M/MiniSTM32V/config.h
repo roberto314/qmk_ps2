@@ -15,7 +15,7 @@
 #define MATRIX_ROWS 8
 #define MATRIX_COLS 16
 //#define DIODE_DIRECTION COL2ROW
-#define MATRIX_HAS_GHOST
+
 #define DEBUGPORT SD1  //ROB
 
 /* key combination for magic key command */

@@ -184,15 +184,18 @@ int main(void) {
 #if defined(WAIT_FOR_USB) || defined(SERIAL_LINK_ENABLE)
         if (USB_DRIVER.state == USB_ACTIVE) {
             driver = &chibios_driver;
+            host_set_driver(driver);
             break;
         }
 #else
         driver = &chibios_driver;
+        host_set_driver(driver);
         break;
 #endif
 #ifdef SERIAL_LINK_ENABLE
         if (is_serial_link_connected()) {
             driver = get_serial_link_driver();
+            host_set_driver(driver);
             break;
         }
         serial_link_update();
@@ -211,7 +214,7 @@ int main(void) {
 
     /* init TMK modules */
     keyboard_init();
-    host_set_driver(driver);
+    //host_set_driver(driver);
 
 #ifdef SLEEP_LED_ENABLE
     sleep_led_init();

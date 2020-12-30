@@ -47,7 +47,7 @@ void CLK_ACTIVE(void);
 void CLK_INACTIVE(void);
 
 static uint8_t debouncing = DEBOUNCE;
-
+static uint8_t led_status = 0;
 static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
 
 /* matrix state(1:on, 0:off) */
@@ -276,6 +276,9 @@ void post_process_record_kb(uint16_t keycode, keyrecord_t *record){
   return;
 }
 
+#define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
+
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // If console is enabled, it will print the matrix position and status of each key pressed
     //uprintf("KL: kc: %u, col: %u, row: %u, pressed: %u\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed);
@@ -301,6 +304,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       case KC_DEL:
       _send_XT_extended(IBM_XT[keycode]);
       chprintf(chout, "kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]);
+      break;
+      case KC_CAPS:
+      //chprintf(chout, "Caps Lock sent\r\n");
+      if (led_status & (1<<USB_LED_CAPS_LOCK)){
+        led_status &= ~(1<<USB_LED_CAPS_LOCK);
+      } else {
+        led_status |= (1<<USB_LED_CAPS_LOCK);
+      }
+      _write_bitbang(IBM_XT[keycode]);
+      break;
+      case KC_NLCK:
+      //chprintf(chout, "Num Lock sent\r\n");
+      if (led_status & (1<<USB_LED_NUM_LOCK)){
+        led_status &= ~(1<<USB_LED_NUM_LOCK);
+      } else {
+        led_status |= (1<<USB_LED_NUM_LOCK);
+      }
+      _write_bitbang(IBM_XT[keycode]);
+      break;
+      case KC_SLCK:
+      //chprintf(chout, "Scroll Lock sent\r\n");
+      if (led_status & (1<<USB_LED_SCROLL_LOCK)){
+        led_status &= ~(1<<USB_LED_SCROLL_LOCK);
+      } else {
+        led_status |= (1<<USB_LED_SCROLL_LOCK);
+      }
+      _write_bitbang(IBM_XT[keycode]);
       break;
       default:
       _write_bitbang(IBM_XT[keycode]);
@@ -333,6 +363,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     }
   }
+  led_set_user_2(led_status);
+  //chprintf(chout, "led_status: %0d\r\n", led_status);
   return true;
 }
 
@@ -424,4 +456,47 @@ void _send_XT_extended(uint8_t keycode){
   //_delay_micro(3500); does not work!
   chThdSleepMilliseconds(4);
   _write_bitbang(keycode);
+}
+
+//bool process_action_kb(keyrecord_t *record) {
+//  chprintf(chout, "In process_action_kb\r\n");
+//
+//}
+
+bool command_extra(uint8_t code){
+    switch (code) {
+        case KC_DEL:
+            print("Reset\n");
+            break;
+        case KC_HOME:
+        case KC_END:
+        print("Click On\n");
+        break;
+        case KC_PGUP:
+            print("LED all on\n");
+            break;
+        case KC_PGDOWN:
+            print("LED all off\n");
+            break;
+        case KC_INSERT:
+            print("USB on/off\n");
+            if (led_status & (1<<USB_LED_USBOFF)){
+              led_status &= ~(1<<USB_LED_USBOFF);
+            } else {
+              led_status |= (1<<USB_LED_USBOFF);
+            }
+            break;
+        default:
+            xprintf("Unknown extra command: %02X\n", code);
+            return false;
+    }
+  return true;
+}
+
+bool host_keyboard_send_user(void){ 
+  if (led_status & (1<<USB_LED_USBOFF)){
+    return false;
+  } else {
+    return true;
+  }  
 }
