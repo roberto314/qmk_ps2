@@ -23,9 +23,9 @@ See picture in the root directory of the RetroKVM Tree.
 */
 enum Retro_KVM_keycodes {
   APP_1 = SAFE_RANGE,
-  APP_2
-  APP_3
-  APP_4
+  APP_2,
+  APP_3,
+  APP_4,
   APP_ENTR
 };
 
@@ -49,6 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   ),
 */
   [_NORMAL] = LAYOUT_seventy_ansi(
+                                                                        APP_1,    APP_2,    APP_3,    APP_4,    APP_ENTR, \
   KC_ESC,   KC_F1,    KC_F2,    KC_F3,    KC_F4,    KC_F5,    KC_F6,    KC_F7,    KC_F8,    KC_F9,    KC_F10,   KC_F11,   KC_F12,    TG(2)  ,       KC_INSERT, KC_PAUSE, KC_DELETE, \
   KC_GRAVE, KC_1,     KC_2,     KC_3,     KC_4,     KC_5,     KC_6,     KC_7,     KC_8,     KC_9,     KC_0,     KC_MINUS, KC_EQL,    KC_BSPC, \
   KC_TAB,   KC_Q,     KC_W,     KC_E,     KC_R,     KC_T,     KC_Y,     KC_U,     KC_I,     KC_O,     KC_P,     KC_LBRC,  KC_RBRC,   KC_ENT,  \
@@ -58,6 +59,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                                   KC_LEFT,  KC_DOWN,  KC_RIGHT \
   ),
  [_FNONE] = LAYOUT_seventy_ansi(
+                                                                        KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, \
   KC_TRNS,  KC_MNXT,  KC_TRNS,  KC_MUTE,  KC_TRNS,  KC_TRNS,  KC_BRID,  KC_BRIU,  KC_VOLD,  KC_VOLU,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_SCROLLLOCK, KC_PSCR,   KC_TRNS,  KC_TRNS, \
   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS, \
   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,   KC_TRNS, \
@@ -67,6 +69,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                                                                   KC_TRNS,  KC_TRNS,  KC_TRNS
   ),
 [_FNTWO] = LAYOUT_seventy_ansi(
+                                                                        KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS, \
   KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  KC_TRNS,  XXXXXXX,  XXXXXXX,   KC_TRNS,       KC_TRNS,   KC_TRNS,  KC_TRNS, \
   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_7,     KC_8,     KC_9,     KC_PSLS,  XXXXXXX,  XXXXXXX,   KC_TRNS, \
   XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  XXXXXXX,  KC_4,     KC_5,     KC_6,     KC_PAST,  XXXXXXX,  XXXXXXX,   KC_PENT, \
