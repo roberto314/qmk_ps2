@@ -47,7 +47,9 @@ void CLK_INACTIVE(void);
 #endif
 static uint8_t debouncing = DEBOUNCE;
 static uint8_t led_status = 0;
-
+static uint8_t key_repeat_time_init = KEY_REPEAT_TIME_INIT;
+static uint8_t key_repeat_time = KEY_REPEAT_TIME_INIT;
+static uint8_t keycode_repeat = 0;
 static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
 
 /* matrix state(1:on, 0:off) */
@@ -151,6 +153,12 @@ uint8_t matrix_scan(void){
     }
   }
   matrix_scan_quantum();
+  if (--key_repeat_time == 0 && keycode_repeat){
+    key_repeat_time = key_repeat_time_init;
+    palToggleLine(DEBUGPIN);
+    dprintf("kcrep: %0x\n",keycode_repeat);
+  }
+  
   return 1;
 }
 
@@ -344,6 +352,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     }
     chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
+    keycode_repeat = keycode;
+    key_repeat_time = key_repeat_time_init * 6;
   } else {
     switch (keycode){
       case KC_PENT:
@@ -367,6 +377,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       break;
     }
     chprintf(chout, "release kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
+    keycode_repeat = 0;
   }
   led_set_user_2(led_status);
   //chprintf(chout, "led_status: %0d\r\n", led_status);

@@ -27,3 +27,5 @@
 #define _delay_micro(x) (gptPolledDelay(&GPTIM, (x*1000/42)))
 #define INVERT_DATA 1
 #define INVERT_CLOCK 1
+
+#define KEY_REPEAT_TIME_INIT 10 // in 8ms chunks (1 is every 8ms, 10 is every 80ms)
