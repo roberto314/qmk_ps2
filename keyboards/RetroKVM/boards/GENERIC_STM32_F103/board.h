@@ -46,7 +46,9 @@
 /* on-board */
 
 
-#define LED1          PAL_LINE(GPIOB, 0)
+#define XT_CLK        PAL_LINE(GPIOB, 14)
+#define XT_DAT        PAL_LINE(GPIOB, 15)
+#define LED_USB       PAL_LINE(GPIOB, 0)
 #define LED2          PAL_LINE(GPIOB, 1)
 /* Backlighting */
 
@@ -130,8 +132,8 @@
  * PB1    - LED2
  * PB7    - Push Pull output  (USB switch).
  */
-#define VAL_GPIOBCRL            0x38888833      /*  PB7...PB0 */
-#define VAL_GPIOBCRH            0x88888888      /* PB15...PB8 */
+#define VAL_GPIOBCRL            0x38833833      /*  PB7...PB0 */
+#define VAL_GPIOBCRH            0x33888888      /* PB15...PB8 */
 //#define VAL_GPIOBCRH            0x88888388      /* PB15...PB8 */
 #define VAL_GPIOBODR            0xFFFFFFFF
 

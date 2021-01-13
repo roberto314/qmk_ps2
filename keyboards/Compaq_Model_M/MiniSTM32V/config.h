@@ -7,7 +7,7 @@
 
 //  Modified by Xydane
 #define MANUFACTURER "QMK"
-#define PRODUCT "Retro KVM"
+#define PRODUCT "Compaq Model M"
 #define DESCRIPTION "QMK keyboard firmware with ChibiOS"
 
 /* key matrix size */
