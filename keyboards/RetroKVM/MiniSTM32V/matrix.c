@@ -353,7 +353,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
     chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
     keycode_repeat = keycode;
-    key_repeat_time = key_repeat_time_init * 6;
+    key_repeat_time = key_repeat_time_init * 6; //initial delay feels about right with six times longer
   } else {
     switch (keycode){
       case KC_PENT:
