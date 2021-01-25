@@ -7,4 +7,5 @@ OPT_DEFS += -DCORTEX_ENABLE_WFI_IDLE=TRUE
 
 # project specific files
 SRC = matrix.c \
-      led.c
+      led.c \
+      ibm_xt.c

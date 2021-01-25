@@ -29,5 +29,8 @@
 #define TIC       ((1000/F_TIM)+1) //us for one tic
 #define MS        (F_TIM/24)
 #define _delay_micro(x) (gptPolledDelay(&GPTIM, (x*1000/42)))
-#define INVERT_DATA 1
-#define INVERT_CLOCK 1
+
+#define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
+#define USB_LED_USBREALOFF 6 //additional to defines 0..4 in led.h
+
+#define KEY_REPEAT_TIME_INIT 10 // in 8ms chunks (1 is every 8ms, 10 is every 80ms)

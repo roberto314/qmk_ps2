@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "matrix.h"
 #include "wait.h"
 #include QMK_KEYBOARD_H
-#include "translation.h"
+#include "ibm_xt.h"
 #include "config.h"
 //#include "pwm.c"
 
@@ -41,26 +41,22 @@ static const GPTConfig gptXcfg = { //Timer for polled delay needs 1ns resolution
     0,
     0
 };
-void DAT_ACTIVE(void);
-void DAT_INACTIVE(void);
-void CLK_ACTIVE(void);
-void CLK_INACTIVE(void);
 
 static uint8_t debouncing = DEBOUNCE;
-static uint8_t led_status = 0;
+extern uint8_t led_status;
 static BaseSequentialStream *const chout = (BaseSequentialStream *)&DEBUGPORT;  //ROB
 
 /* matrix state(1:on, 0:off) */
 static matrix_row_t matrix[MATRIX_ROWS];
 static matrix_row_t matrix_debouncing[MATRIX_ROWS];
-
 static matrix_row_t read_cols(void);
+uint8_t key_repeat_time_init = KEY_REPEAT_TIME_INIT;
+uint8_t key_repeat_time = KEY_REPEAT_TIME_INIT;
+uint8_t keycode_repeat = 0;
+
 static void init_cols(void);
 static void unselect_rows(void);
 static void select_row(uint8_t row);
-void _write_bitbang(uint8_t value);
-void _send_XT_extended(uint8_t keycode);
-void _send_fake_shift(void);
 inline uint8_t matrix_rows(void){
   return MATRIX_ROWS;
 }
@@ -93,13 +89,7 @@ void matrix_init_user(void) {
   palSetPadMode(GPIOA, 10, PAL_MODE_STM32_ALTERNATE_OPENDRAIN);
   chThdSleepMilliseconds(200);  //ROB
   chprintf(chout, "Serial Driver Functional s\r\n");  //ROB
-  // Bitbang Output for XT Keyboard
-  //palSetPadMode(GPIOB, 3, PAL_MODE_OUTPUT_PUSHPULL);
-  //palSetPadMode(GPIOB, 4, PAL_MODE_OUTPUT_PUSHPULL);
-  palSetLineMode(XT_CLK, PAL_MODE_OUTPUT_PUSHPULL);
-  palSetLineMode(XT_DAT, PAL_MODE_OUTPUT_PUSHPULL);
-  CLK_INACTIVE();
-  DAT_ACTIVE();
+  init_XT();
   gptStart(&GPTIM, &gptXcfg); //polled delay
 }
 
@@ -151,6 +141,12 @@ uint8_t matrix_scan(void){
     }
   }
   matrix_scan_quantum();
+  if (--key_repeat_time == 0 && keycode_repeat){
+    key_repeat_time = key_repeat_time_init;
+    //palToggleLine(DEBUGPIN);
+    //dprintf("kcrep: %0x\n",keycode_repeat);
+    repeat_XTkeycode();
+  }  
   return 1;
 }
 
@@ -273,13 +269,8 @@ static void select_row(uint8_t row){
 //}
 void post_process_record_kb(uint16_t keycode, keyrecord_t *record){
   //chprintf(chout, "in post_process_record_kb s\r\n");
-
   return;
 }
-
-#define USB_LED_USBOFF 5 //additional to defines 0..4 in led.h
-#define USB_LED_USBREALOFF 6 //additional to defines 0..4 in led.h
-
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   // If console is enabled, it will print the matrix position and status of each key pressed
@@ -288,186 +279,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     dprintf("kc: %0x\n",keycode);
 #endif 
   if (record->event.pressed){
-    if (led_status & (1<<USB_LED_USBOFF)){  //switch USB off AFTER keys have been released
-      led_status |= (1<<USB_LED_USBREALOFF);
-    }    
-    switch (keycode){
-      case KC_PENT:
-      case KC_RCTL:
-      case KC_PSLS:
-      case KC_RALT:
-      case KC_HOME:
-      case KC_UP:
-      case KC_PGUP:
-      case KC_LEFT:
-      case KC_RGHT:
-      case KC_END:
-      case KC_DOWN:
-      case KC_PGDN:
-      case KC_INS:
-      case KC_DEL:
-      _send_XT_extended(IBM_XT[keycode]);
-      chprintf(chout, "kc: %0d XT ext: %0d\r\n", keycode, IBM_XT[keycode]);
-      break;
-      case KC_CAPS:
-      //chprintf(chout, "Caps Lock sent\r\n");
-      if (led_status & (1<<USB_LED_CAPS_LOCK)){
-        led_status &= ~(1<<USB_LED_CAPS_LOCK);
-        _write_bitbang(IBM_XT[keycode]);
-        _send_fake_shift();  //hack because the shift "HANGS" after pressing twice it is still on!
-      } else {
-        led_status |= (1<<USB_LED_CAPS_LOCK);
-        _write_bitbang(IBM_XT[keycode]);
-      }
-      break;
-      case KC_NLCK:
-      //chprintf(chout, "Num Lock sent\r\n");
-      if (led_status & (1<<USB_LED_NUM_LOCK)){
-        led_status &= ~(1<<USB_LED_NUM_LOCK);
-      } else {
-        led_status |= (1<<USB_LED_NUM_LOCK);
-      }
-      _write_bitbang(IBM_XT[keycode]);
-      break;
-      case KC_SLCK:
-      //chprintf(chout, "Scroll Lock sent\r\n");
-      if (led_status & (1<<USB_LED_SCROLL_LOCK)){
-        led_status &= ~(1<<USB_LED_SCROLL_LOCK);
-      } else {
-        led_status |= (1<<USB_LED_SCROLL_LOCK);
-      }
-      _write_bitbang(IBM_XT[keycode]);
-      break;
-      default:
-      _write_bitbang(IBM_XT[keycode]);
-      break;
-    }
-    chprintf(chout, "kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]);
+    make_XT(keycode);
   } else {
-    switch (keycode){
-      case KC_PENT:
-      case KC_RCTL:
-      case KC_PSLS:
-      case KC_RALT:
-      case KC_HOME:
-      case KC_UP:
-      case KC_PGUP:
-      case KC_LEFT:
-      case KC_RGHT:
-      case KC_END:
-      case KC_DOWN:
-      case KC_PGDN:
-      case KC_INS:
-      case KC_DEL:
-      _send_XT_extended(IBM_XT[keycode] | 0x80); //Key release is Bit 7 SET
-      break;
-      default:
-      _write_bitbang(IBM_XT[keycode] | 0x80);
-      break;
-    }
-    chprintf(chout, "release kc: %0d XT: %0d\r\n", keycode, IBM_XT[keycode]  | 0x80);
+    brake_XT(keycode);
   }
   led_set_user_2(led_status);
   //chprintf(chout, "led_status: %0d\r\n", led_status);
   return true;
 }
 
-void DAT_ACTIVE(void){
-#ifdef INVERT_DATA
-  palSetLine(XT_DAT);
-#else
-  palClearLine(XT_DAT);
-#endif  
-}
-void DAT_INACTIVE(void){
-#ifdef INVERT_DATA
-  palClearLine(XT_DAT);
-#else
-  palSetLine(XT_DAT);
-#endif  
-}
-void CLK_ACTIVE(void){
-#ifdef INVERT_CLOCK
-  palSetLine(XT_CLK);
-#else
-  palClearLine(XT_CLK);
-#endif  
-}
-void CLK_INACTIVE(void){
-#ifdef INVERT_CLOCK
-  palClearLine(XT_CLK);
-#else
-  palSetLine(XT_CLK);
-#endif  
-}
-
-void _send_start(void){
-  // CLK Line is HIGH and DATA Line is LOW
-   CLK_ACTIVE(); //1
-   _delay_micro(5); //Needed for my logic and protocol analyzer 
-   DAT_INACTIVE();
-   _delay_micro(50);
-   //_delay_micro(120);
-   CLK_INACTIVE();
-   _delay_micro(40);
-   //_delay_micro(66);
-   CLK_ACTIVE(); //2
-   //_delay_micro(15); 
-   //_delay_micro(30); 
-   //CLK_INACTIVE();
-  // CLK Line is High and DATA Line is still HIGH
-}
-
-void _write_bitbang(uint8_t value){
-   //while (digitalRead(XT_CLK) != HIGH) ; 
-   uint8_t bits[8];
-   uint8_t p = 0; 
-   uint8_t j = 0;
-   uint8_t i = 0;
-   for (j=0 ; j < 8; j++){
-     if (value & 1) bits[j] = 1 ;
-     else bits[j] = 0 ; 
-     value = value >> 1 ; 
-   }
-   _send_start();
-   
-   for (i=0; i < 8; i++){
-      _delay_micro(15);
-      //_delay_micro(30);
-      //CLK_INACTIVE();
-      //_delay_micro(15);
-      if (bits[p] == 1){
-         DAT_INACTIVE();
-      }else{
-         DAT_ACTIVE();
-      }
-      //_delay_micro(66); 
-      _delay_micro(25); 
-      CLK_INACTIVE();
-      _delay_micro(40);
-      CLK_ACTIVE();
-      //DAT_ACTIVE();
-      p++ ;
-   }
-   _delay_micro(30);
-   CLK_INACTIVE();
-   _delay_micro(5);
-   DAT_ACTIVE();
-   //delay(1) ;
-}
-void _send_XT_extended(uint8_t keycode){
-  _write_bitbang(0xe0);
-  //_delay_micro(3500); does not work!
-  chThdSleepMilliseconds(4);
-  _write_bitbang(keycode);
-}
-void _send_fake_shift(void){
-  chThdSleepMilliseconds(4);
-  //_write_bitbang(0xe0);
-  _write_bitbang(IBM_XT[KC_LSFT]);
-  chThdSleepMilliseconds(4);
-  _write_bitbang(IBM_XT[KC_LSFT] | 0x80);
-}
 //bool process_action_kb(keyrecord_t *record) {
 //  chprintf(chout, "In process_action_kb\r\n");
 //
@@ -504,7 +324,7 @@ bool command_extra(uint8_t code){
   return true;
 }
 
-bool host_keyboard_send_user(void){ 
+bool host_keyboard_send_user(void){  //This is a hook from host.c line 53
   if (led_status & (1<<USB_LED_USBREALOFF)){
     return false;
   } else {
